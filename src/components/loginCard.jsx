@@ -7,8 +7,18 @@ export default function LoginCard({ role }) {
     const loginFetchAPI = null;
     const [errorMsg, setErrorMsg] = useState(null)
     const [showPass, setShowPass] = useState(false)
-    const {setAuthorLoginData, setAdminLoginData, adminLoginData, authorLoginData} = useStore()
+    const { setAuthorLoginData, setAdminLoginData, adminLoginData, authorLoginData } = useStore()
     const navigate = useNavigate()
+
+    useEffect(() => {
+        if (role === "Author" && authorLoginData?.author_id) {
+            navigate("/author/books");
+        }
+
+        if (role === "Admin" && adminLoginData?.admin_id) {
+            navigate("/admin/query-tickets");
+        }
+    }, [authorLoginData, adminLoginData, role]);
 
     const handleLoginSubmit = (e) => {
         e.preventDefault();
@@ -18,14 +28,6 @@ export default function LoginCard({ role }) {
 
         // According to the role call Author API for login
         if (role == "Author") {
-
-            useEffect(()=>{
-                if (authorLoginData?.author_id) {
-                    navigate("/author/books")
-                }
-            },[])
-
-
             fetch(`${BASE_URL}/auth/author/login`, {
                 method: "POST",
                 headers: {
@@ -33,33 +35,26 @@ export default function LoginCard({ role }) {
                 },
                 body: JSON.stringify({ email, password })
             })
-            .then((resp)=>resp.json())
-            .then((result)=>{
-                setErrorMsg(null)
-                if (result.code == 404) {
-                    setErrorMsg(result.message);
-                }
-                if (result.code == 422) {
-                    setErrorMsg(result.message);
-                }
+                .then((resp) => resp.json())
+                .then((result) => {
+                    setErrorMsg(null)
+                    if (result.code == 404) {
+                        setErrorMsg(result.message);
+                    }
+                    if (result.code == 422) {
+                        setErrorMsg(result.message);
+                    }
 
-                if (result.code == 200) {
-                    setAuthorLoginData(result.data)
-                    alert(result.message)
-                    navigate("/author/books")
-                }
-            })
-            .catch((err)=>console.error(err))
+                    if (result.code == 200) {
+                        setAuthorLoginData(result.data)
+                        alert(result.message)
+                        navigate("/author/books")
+                    }
+                })
+                .catch((err) => console.error(err))
         }
-        
+
         if (role == "Admin") {
-
-            useEffect(()=>{
-                if (adminLoginData?.admin_id) {
-                    navigate("/author/query-tickets")
-                }
-            },[])
-
             fetch(`${BASE_URL}/auth/admin/login`, {
                 method: "POST",
                 headers: {
@@ -67,23 +62,23 @@ export default function LoginCard({ role }) {
                 },
                 body: JSON.stringify({ email, password })
             })
-            .then((resp)=>resp.json())
-            .then((result)=>{
-                setErrorMsg(null)
-                if (result.code == 404) {
-                    setErrorMsg(result.message);
-                }
-                if (result.code == 422) {
-                    setErrorMsg(result.message);
-                }
+                .then((resp) => resp.json())
+                .then((result) => {
+                    setErrorMsg(null)
+                    if (result.code == 404) {
+                        setErrorMsg(result.message);
+                    }
+                    if (result.code == 422) {
+                        setErrorMsg(result.message);
+                    }
 
-                if (result.code == 200) {
-                    setAdminLoginData(result.data)
-                    alert(result.message)
-                    navigate("/admin/query-tickets")
-                }
-            })
-            .catch((err)=>console.error(err))
+                    if (result.code == 200) {
+                        setAdminLoginData(result.data)
+                        alert(result.message)
+                        navigate("/admin/query-tickets")
+                    }
+                })
+                .catch((err) => console.error(err))
         }
 
     }
@@ -102,10 +97,10 @@ export default function LoginCard({ role }) {
                 {/* heading */}
                 <div className="text-center text-xl font-semibold text-slate-800 mb-1">{role}'s Portal</div>
 
-                {"Author" == role?<div className="text-center text-sm text-slate-400 mb-6">Welcome back! Please sign in.</div>:""}
+                {"Author" == role ? <div className="text-center text-sm text-slate-400 mb-6">Welcome back! Please sign in.</div> : ""}
 
                 {/* Show Error */}
-                <small className="text-red-600 py-2 font-semibold">{errorMsg?errorMsg:""}</small>
+                <small className="text-red-600 py-2 font-semibold">{errorMsg ? errorMsg : ""}</small>
 
                 {/* login form */}
                 <form onSubmit={(e) => handleLoginSubmit(e)} className="flex flex-col gap-4">
@@ -146,9 +141,9 @@ export default function LoginCard({ role }) {
 
                     {/* Forgot Password */}
                     {
-                        "Author" == role?
-                        <Link to="/author/forgot-password" className="text-xs text-blue-600 hover:underline text-end">Forgot password?</Link>
-                        :""
+                        "Author" == role ?
+                            <Link to="/author/forgot-password" className="text-xs text-blue-600 hover:underline text-end">Forgot password?</Link>
+                            : ""
                     }
 
                     {/* submit */}
