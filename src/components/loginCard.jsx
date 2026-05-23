@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BASE_URL } from "../config";
 import { Link, useNavigate } from "react-router-dom";
 import { useStore } from "../store/store";
@@ -7,7 +7,7 @@ export default function LoginCard({ role }) {
     const loginFetchAPI = null;
     const [errorMsg, setErrorMsg] = useState(null)
     const [showPass, setShowPass] = useState(false)
-    const {setAuthorLoginData, setAdminLoginData} = useStore()
+    const {setAuthorLoginData, setAdminLoginData, adminLoginData, authorLoginData} = useStore()
     const navigate = useNavigate()
 
     const handleLoginSubmit = (e) => {
@@ -18,6 +18,14 @@ export default function LoginCard({ role }) {
 
         // According to the role call Author API for login
         if (role == "Author") {
+
+            useEffect(()=>{
+                if (authorLoginData?.author_id) {
+                    navigate("/author/books")
+                }
+            },[])
+
+
             fetch(`${BASE_URL}/auth/author/login`, {
                 method: "POST",
                 headers: {
@@ -45,6 +53,13 @@ export default function LoginCard({ role }) {
         }
         
         if (role == "Admin") {
+
+            useEffect(()=>{
+                if (adminLoginData?.admin_id) {
+                    navigate("/author/query-tickets")
+                }
+            },[])
+
             fetch(`${BASE_URL}/auth/admin/login`, {
                 method: "POST",
                 headers: {
