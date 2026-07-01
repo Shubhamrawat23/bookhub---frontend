@@ -19,7 +19,7 @@ export default function AuthorPortalHeader() {
                 {/* LEFT - Logo */}
                 <div className="flex items-center gap-2 invisible">
                     <i className="fa-solid fa-book-open fa-lg" style={{ color: "#166bba" }}></i>
-                    <span className="text-slate-800 font-bold text-lg tracking-tight">Book Leaf</span>
+                    <span className="text-slate-800 font-bold text-lg tracking-tight">Book Hub</span>
                 </div>
 
                 {/* RIGHT - Profile */}

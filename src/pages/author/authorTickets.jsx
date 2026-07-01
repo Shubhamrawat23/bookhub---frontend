@@ -20,9 +20,12 @@ export default function AuthorTickets() {
         if (!authorLoginData?.author_id) return;
         if (showLoader) setLoading(true);
 
-        fetch(`${BASE_URL}/ticket/author/list?author_id=${authorLoginData.author_id}`, {
+        fetch(`${BASE_URL}/ticket/author/list`, {
             method: "GET",
-            headers: { "Content-Type": "application/json" }
+            headers: { 
+                "Accept": "application/json",
+                "Authorization": `${authorLoginData.token_type} ${authorLoginData.access_token}`
+            }
         })
         .then((resp) => resp.json())
         .then((result) => {
@@ -64,9 +67,12 @@ export default function AuthorTickets() {
         if (!authorLoginData?.author_id) return;
         setBooksLoading(true);
 
-        fetch(`${BASE_URL}/author/book/list?author_id=${authorLoginData.author_id}`, {
+        fetch(`${BASE_URL}/author/book/list`, {
             method: "GET",
-            headers: { "Content-Type": "application/json" }
+            headers: { 
+                "Accept": "application/json",
+                "Authorization": `${authorLoginData.token_type} ${authorLoginData.access_token}`
+            }
         })
         .then((resp) => resp.json())
         .then((result) => {

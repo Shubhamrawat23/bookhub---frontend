@@ -1,6 +1,6 @@
-# BookLeaf Assignment Frontend
+# Bookhub Assignment Frontend
 
-Frontend application for the BookLeaf Author & Admin Support System built using React, Vite, TailwindCSS, Zustand, and React Router DOM.
+Frontend application for the Bookhub Author & Admin Support System built using React, Vite, TailwindCSS, Zustand, and React Router DOM.
 
 ---
 
@@ -31,7 +31,7 @@ https://bookleafpub-backend-production.up.railway.app
 
 ## Author Portal
 
-Email: priya.sharma@email.com  
+Email: sa001@email.com
 Password: 123456
 
 ##### Note: You can create/update new password for other authors also through forgot password (https://bookleafpub-frontend.vercel.app/author/forgot-password)
@@ -41,19 +41,19 @@ Password: 123456
 
 ### ADMIN 1
 
-Email: admin_00001@bookleafpub.com  
+Email: admin_00001@bookhub.com  
 Password: admin@123
 
 ### ADMIN 2
 
-Email: admin_00002@bookleafpub.com  
+Email: admin_00002@bookhub.com
 Password: admin002@123
 
 ---
 
 # Project Overview
 
-This frontend powers the BookLeaf publishing support platform.
+This frontend powers the Bookhub publishing support platform.
 
 The application includes:
 
@@ -383,13 +383,5 @@ If evolving this project further into production:
 
 - JWT refresh token flow
 - RBAC authorization
-- WebSocket-based live updates
-- Redis caching layer
-- Dockerized deployment
-- CI/CD pipeline
-- Centralized monitoring/logging
-- Better accessibility support
 
 ---
-
-Built as part of the BookLeaf Full Stack Assignment.

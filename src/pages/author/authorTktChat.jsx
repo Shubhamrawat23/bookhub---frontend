@@ -32,32 +32,35 @@ export default function AuthorTicketChat() {
         if (!authorLoginData?.author_id || !ticket_code) return;
         if (showLoader) setLoading(true);
 
-        fetch(`${BASE_URL}/ticket/author/tkt_chat?tkt_code=${ticket_code}&access_by=author&author_id=${authorLoginData.author_id}`, {
+        fetch(`${BASE_URL}/ticket/author/tkt_chat?tkt_code=${ticket_code}`, {
             method: "GET",
-            headers: { "accept": "application/json" }
+            headers: { 
+                "Accept": "application/json",
+                "Authorization": `${authorLoginData.token_type} ${authorLoginData.access_token}` 
+            }
         })
-            .then((resp) => resp.json())
-            .then((result) => {
-                if (result.code == 401) {
-                    alert(result.message)
-                    navigate("/author/login")
-                }
-                if (result.message == 400) {
-                    alert(result.message)
-                }
-                if (result.message == 404) {
-                    alert(result.message)
-                }
+        .then((resp) => resp.json())
+        .then((result) => {
+            if (result.code == 401) {
+                alert(result.message)
+                navigate("/author/login")
+            }
+            if (result.code == 400) {
+                alert(result.message)
+            }
+            if (result.code == 404) {
+                alert(result.message)
+            }
 
-                if (result.code === 200) {
-                    setMessages(result.data);
-                    setError(null);
-                }
-            })
-            .catch(() => setError("Something went wrong."))
-            .finally(() => setLoading(false));
+            if (result.code === 200) {
+                setMessages(result.data);
+                setError(null);
+            }
+        })
+        .catch(() => setError("Something went wrong."))
+        .finally(() => {if (showLoader) setLoading(false)});
 
-    }, [authorLoginData?.author_id, ticket_code]);
+    }, [authorLoginData?.access_token, ticket_code]);
 
     useEffect(() => {
         fetchChat(true);
@@ -77,11 +80,12 @@ export default function AuthorTicketChat() {
 
         fetch(`${BASE_URL}/ticket/author/save_message`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `${authorLoginData.token_type} ${authorLoginData.access_token}`
+            },
             body: JSON.stringify({
                 ticket_code: ticket_code,
-                sender_id: authorLoginData?.author_id,
-                sender_type: "author",
                 message: message.trim()
             })
         })

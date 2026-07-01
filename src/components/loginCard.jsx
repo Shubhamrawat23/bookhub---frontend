@@ -11,11 +11,11 @@ export default function LoginCard({ role }) {
     const navigate = useNavigate()
 
     useEffect(() => {
-        if (role === "Author" && authorLoginData?.author_id) {
+        if (role === "Author" && authorLoginData?.access_token) {
             navigate("/author/books");
         }
 
-        if (role === "Admin" && adminLoginData?.admin_id) {
+        if (role === "Admin" && adminLoginData?.access_token) {
             navigate("/admin/query-tickets");
         }
     }, [authorLoginData, adminLoginData, role]);
@@ -88,7 +88,7 @@ export default function LoginCard({ role }) {
             {/* ICON */}
             <div className="flex items-center gap-2 text-2xl font-bold py-3 mb-2">
                 <i className="fa-solid fa-book-open fa-xl" style={{ color: "#166bba" }}></i>
-                <span className="text-slate-800 tracking-tight">Book Leaf</span>
+                <span className="text-slate-800 tracking-tight">Book Hub</span>
             </div>
 
             {/* Login Card */}

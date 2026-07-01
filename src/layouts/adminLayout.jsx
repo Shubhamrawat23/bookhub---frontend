@@ -8,12 +8,12 @@ export default function AdminLayout() {
     const {adminLoginData} = useStore()
 
     useEffect(() => {
-            if (adminLoginData?.admin_id == null) {
-                navigate("/author/login");
+            if (adminLoginData?.access_token == null) {
+                navigate("/admin/login");
             }
         }, [adminLoginData]);
     
-        if (adminLoginData?.admin_id == null) return null;
+        if (adminLoginData?.access_token == null) return null;
     return (
         <div className="flex flex-col h-screen">
             <AdminHeader />

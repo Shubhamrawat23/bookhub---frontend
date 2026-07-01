@@ -10,12 +10,12 @@ export default function AuthorLayout() {
     const navigate = useNavigate()
 
     useEffect(() => {
-        if (authorLoginData?.author_id == null) {
+        if (authorLoginData?.access_token == null) {
             navigate("/author/login");
         }
     }, [authorLoginData]);
 
-    if (authorLoginData?.author_id == null) return null;
+    if (authorLoginData?.access_token == null) return null;
 
     return (
         <>

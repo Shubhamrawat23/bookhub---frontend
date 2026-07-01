@@ -28,7 +28,7 @@ export default function NewTicketModal({ onClose, onSuccess, books = [] }) {
 
         // Build multipart/form-data payload
         const formData = new FormData();
-        formData.append("author_id", authorLoginData?.author_id);
+        // formData.append("author_id", authorLoginData?.author_id);
         formData.append("book_id", data.get("book_id"));
         formData.append("subject", data.get("subject"));
         formData.append("description", data.get("description"));
@@ -47,8 +47,9 @@ export default function NewTicketModal({ onClose, onSuccess, books = [] }) {
 
         fetch(`${BASE_URL}/ticket/author/create`, {
             method: "POST",
-            // NO Content-Type header — browser sets it automatically
-            // with the correct boundary for multipart/form-data
+            headers:{
+                "Authorization": `${authorLoginData.token_type} ${authorLoginData.access_token}`
+            },
             body: formData
         })
             .then((resp) => resp.json())

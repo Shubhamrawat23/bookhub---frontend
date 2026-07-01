@@ -44,9 +44,9 @@ export default function AdminTicketDetailsUpdate() {
         if (!ticket_code) return;
         if (showLoader) setLoading(true);
 
-        fetch(`${BASE_URL}/ticket/admin/tkt_detail?admin_code=${adminLoginData?.admin_code}&ticket_code=${ticket_code}`, {
+        fetch(`${BASE_URL}/ticket/admin/tkt_detail?ticket_code=${ticket_code}`, {
             method: "GET",
-            headers: { "accept": "application/json" }
+            headers: { "accept": "application/json", "Authorization": `${adminLoginData.token_type} ${adminLoginData.access_token}` }
         })
             .then(r => r.json())
             .then(result => {
@@ -66,7 +66,7 @@ export default function AdminTicketDetailsUpdate() {
             .catch(() => setError("Something went wrong."))
             .finally(() => setLoading(false));
 
-    }, [ticket_code, adminLoginData?.admin_code, navigate]);
+    }, [ticket_code, adminLoginData?.access_token, navigate]);
 
     // Only on mount
     useEffect(() => {
@@ -79,9 +79,9 @@ export default function AdminTicketDetailsUpdate() {
         if (!adminLoginData?.admin_id) return;
 
 
-        fetch(`${BASE_URL}/ticket/admin/tkt_chat?tkt_code=${ticket_code}&access_by=admin&author_id=${adminLoginData.admin_code}`, {
+        fetch(`${BASE_URL}/ticket/admin/tkt_chat?tkt_code=${ticket_code}`, {
             method: "GET",
-            headers: { "accept": "application/json" }
+            headers: { "accept": "application/json", "Authorization": `${adminLoginData.token_type} ${adminLoginData.access_token}` }
         })
             .then(r => r.json())
             .then(result => {
@@ -108,7 +108,7 @@ export default function AdminTicketDetailsUpdate() {
     const tktAction = async (action, action_val) => {
         const result = await fetch(`${BASE_URL}/ticket/admin/tkt_action`, {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", "Authorization": `${adminLoginData.token_type} ${adminLoginData.access_token}` },
             body: JSON.stringify({
                 ticket_code: ticket_code,
                 action: action,
@@ -129,11 +129,9 @@ export default function AdminTicketDetailsUpdate() {
 
         fetch(`${BASE_URL}/ticket/admin/save_message`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", "Authorization": `${adminLoginData.token_type} ${adminLoginData.access_token}` },
             body: JSON.stringify({
                 ticket_code: ticket_code,
-                sender_id: adminLoginData?.admin_id,
-                sender_type: "admin",
                 message: message.trim()
             })
         })

@@ -37,11 +37,12 @@ export default function AdminTickets() {
     const fetchTickets = useCallback((showLoader = false) => {
         if (showLoader) setLoading(true);
 
-        const params = new URLSearchParams({
-            author_id: "all",
-            admin_code: adminLoginData?.admin_code ?? ""
-        });
-
+        // const params = new URLSearchParams({
+        //     author_id: "all",
+        //     admin_code: adminLoginData?.admin_code ?? ""
+        // });
+        
+        const params = new URLSearchParams();
         if (status) params.append("status_filter", status);
         if (category) params.append("category_filter", category);
         if (priority) params.append("priority_filter", priority);
@@ -50,7 +51,7 @@ export default function AdminTickets() {
 
         fetch(`${BASE_URL}/ticket/admin/list?${params.toString()}`, {
             method: "GET",
-            headers: { "accept": "application/json" }
+            headers: { "accept": "application/json", "Authorization": `${adminLoginData.token_type} ${adminLoginData.access_token}` }
         })
             .then(r => r.json())
             .then(result => {
@@ -73,7 +74,7 @@ export default function AdminTickets() {
     }, [fetchTickets]);
 
     const urgentCount = useMemo(() =>
-        tickets.filter(t => t.priority <= 2 && t.status < 2).length
+        tickets.filter(t => (t.priority <= 2) && (t.status <= 1)).length
         , [tickets]);
 
     const formatDate = (dateStr) => {
@@ -137,7 +138,7 @@ export default function AdminTickets() {
                     {urgentCount > 0 && (
                         <p className="text-xs text-red-500 mt-0.5 flex items-center gap-1">
                             <i className="fa-solid fa-circle-exclamation fa-sm"></i>
-                            {urgentCount} urgent unresolved {urgentCount === 1 ? "ticket" : "tickets"} need attention
+                            {urgentCount} unresolved {urgentCount === 1 ? "ticket" : "tickets"} need attention
                         </p>
                     )}
                 </div>
@@ -235,7 +236,7 @@ export default function AdminTickets() {
                                 tickets.map((tkt) => {
                                     const statusInfo = STATUS_MAP[tkt.status] ?? STATUS_MAP[0];
                                     const priorityInfo = PRIORITY_MAP[tkt.priority] ?? PRIORITY_MAP[4];
-                                    const isUrgentOld = tkt.priority <= 2 && tkt.status < 2;
+                                    const isUrgentOld = tkt.priority <= 2 && tkt.status < 1;
 
                                     return (
                                         <tr key={tkt.id}

@@ -18,7 +18,7 @@ export default function AuthorPortalSidebar({ sidebarOpen, setSidebarOpen }) {
                 <i className="fa-solid fa-book-open fa-lg flex-shrink-0" style={{ color: "#166bba" }}></i>
                 {sidebarOpen && (
                     <span className="text-slate-800 font-bold text-lg tracking-tight whitespace-nowrap">
-                        Book Leaf
+                        Book Hub
                     </span>
                 )}
             </div>
@@ -49,7 +49,7 @@ export default function AuthorPortalSidebar({ sidebarOpen, setSidebarOpen }) {
             <div className="p-2 border-t border-slate-100">
                 <button
                     className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-50 hover:text-red-500 transition w-full"
-                    onClick={() => console.log("logout")}
+                    onClick={() => {localStorage.clear('loginData'); window.location.reload();}}
                 >
                     <i className="fa-solid fa-right-from-bracket fa-sm w-4 text-center flex-shrink-0"></i>
                     {sidebarOpen && <span className="whitespace-nowrap">Logout</span>}

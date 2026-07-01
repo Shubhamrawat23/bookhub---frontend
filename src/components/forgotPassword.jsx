@@ -48,7 +48,7 @@ export default function ForgotPassword() {
             {/* ICON */}
             <div className="flex items-center gap-2 text-2xl font-bold py-3 mb-2">
                 <i className="fa-solid fa-book-open fa-xl" style={{ color: "#166bba" }}></i>
-                <span className="text-slate-800 tracking-tight">Book Leaf</span>
+                <span className="text-slate-800 tracking-tight">Book Hub</span>
             </div>
 
             {/* Login Card */}

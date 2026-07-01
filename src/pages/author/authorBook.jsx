@@ -15,10 +15,11 @@ export default function AuthorBook() {
         
         if (!authorLoginData?.author_id) return;
 
-        fetch(`${BASE_URL}/author/book/list?author_id=${authorLoginData.author_id}`, {
+        fetch(`${BASE_URL}/author/book/list`, {
             method: "GET",
             headers: {
-                "accept": "application/json",
+                "Accept": "application/json",
+                "Authorization": `${authorLoginData.token_type} ${authorLoginData.access_token}`
             }
         })
         .then((resp) => resp.json())

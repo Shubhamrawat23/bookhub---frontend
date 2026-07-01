@@ -17,7 +17,7 @@ export default function AdminPortalHeader() {
                 {/* LEFT - Logo */}
                 <div className="flex items-center gap-2">
                     <i className="fa-solid fa-book-open fa-lg" style={{ color: "#166bba" }}></i>
-                    <span className="text-slate-800 font-bold text-lg tracking-tight">Book Leaf</span>
+                    <span className="text-slate-800 font-bold text-lg tracking-tight">Book Hub</span>
                     <span className="text-xs font-medium text-white bg-[#166bba] px-2 py-0.5 rounded-full ml-1">Admin</span>
                 </div>
 
@@ -32,7 +32,7 @@ export default function AdminPortalHeader() {
                     <div className="w-px h-6 bg-slate-200"></div>
 
                     {/* Avatar + Name */}
-                    <div className="flex items-center gap-2 cursor-pointer group">
+                    <div className="flex items-center gap-2 cursor-pointer group" onClick={()=>{localStorage.clear('loginData'); window.location.reload();}}>
                         <div className="w-8 h-8 rounded-full bg-[#166bba] flex items-center justify-center text-white text-sm font-semibold">
                             {getInitials(adminLoginData?.name)}
                         </div>

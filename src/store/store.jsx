@@ -8,7 +8,9 @@ export const useStore = create(
                 author_id: null,
                 name:      null,
                 email:     null,
-                phone:     null
+                phone:     null,
+                access_token: null,
+                token_type: null,
             },
             setAuthorLoginData: (data) => set({ authorLoginData: data }),
             logoutAuthor: () => set({
@@ -16,7 +18,9 @@ export const useStore = create(
                     author_id: null,
                     name:      null,
                     email:     null,
-                    phone:     null
+                    phone:     null,
+                    access_token: null,
+                    token_type: null,
                 }
             }),
 
@@ -30,6 +34,8 @@ export const useStore = create(
                 admin_code: null,
                 name:       null,
                 email:      null,
+                access_token: null,
+                token_type: null,
             },
             setAdminLoginData: (data) => set({ adminLoginData: data }),
             logoutAdmin: () => set({
@@ -38,6 +44,8 @@ export const useStore = create(
                     admin_code: null,
                     name:       null,
                     email:      null,
+                    access_token: null,
+                    token_type: null,
                 }
             }),
 
