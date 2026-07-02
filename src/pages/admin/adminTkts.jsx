@@ -55,6 +55,10 @@ export default function AdminTickets() {
         })
             .then(r => r.json())
             .then(result => {
+                if (result?.detail?.code == 401) {
+                    alert(result.detail.message)
+                    navigate("/admin/login");
+                }
                 if (result.code === 200) {
                     setTickets(result.data);
                     setError(null);

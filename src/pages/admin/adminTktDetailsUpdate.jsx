@@ -50,7 +50,8 @@ export default function AdminTicketDetailsUpdate() {
         })
             .then(r => r.json())
             .then(result => {
-                if (result.code === 401) {
+                if (result?.detail?.code === 401) {
+                    alert(result.detail.message)
                     navigate("/admin/login");
                     return;
                 }

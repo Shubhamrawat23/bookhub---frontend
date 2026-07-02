@@ -30,7 +30,7 @@ export default function AuthorTickets() {
         .then((resp) => resp.json())
         .then((result) => {
             if (result?.detail?.code == 401) {
-                alert(result.message)
+                alert(result.detail.message)
                 navigate("/author/login")
             }
             if (result.code === 200) {
