@@ -42,8 +42,10 @@ export default function AuthorTicketChat() {
         .then((resp) => resp.json())
         .then((result) => {
             if (result?.detail?.code == 401) {
-                alert(result.detail.message)
+                clearInterval(pollingRef.current)
+                alert(result.detail.error)
                 navigate("/author/login")
+                return;
             }
             if (result.code == 400) {
                 alert(result.message)
@@ -92,8 +94,9 @@ export default function AuthorTicketChat() {
             .then((resp) => resp.json())
             .then((result) => {
                 if (result?.detail?.code == 401) {
-                    alert(result.detail.message)
+                    alert(result.detail.error)
                     navigate("/author/login")
+                    return;
                 }
                 if (result.message == 400) {
                     alert(result.message)

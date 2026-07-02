@@ -30,8 +30,10 @@ export default function AuthorTickets() {
         .then((resp) => resp.json())
         .then((result) => {
             if (result?.detail?.code == 401) {
-                alert(result.detail.message)
+                clearInterval(pollingTktList.current);
+                alert(result.detail.error)
                 navigate("/author/login")
+                return;
             }
             if (result.code === 200) {
                 setTickets(result.data);

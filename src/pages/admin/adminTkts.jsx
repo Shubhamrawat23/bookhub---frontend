@@ -56,8 +56,10 @@ export default function AdminTickets() {
             .then(r => r.json())
             .then(result => {
                 if (result?.detail?.code == 401) {
-                    alert(result.detail.message)
+                    clearInterval(pollingRef.current);
+                    alert(result.detail.error);
                     navigate("/admin/login");
+                    return;
                 }
                 if (result.code === 200) {
                     setTickets(result.data);
@@ -69,7 +71,7 @@ export default function AdminTickets() {
             .catch(() => setError("Something went wrong."))
             .finally(() => setLoading(false));
 
-    }, [adminLoginData?.admin_code, status, category, priority, startDate, endDate]);
+    }, [adminLoginData?.access_token, status, category, priority, startDate, endDate]);
 
     useEffect(() => {
         fetchTickets(true);

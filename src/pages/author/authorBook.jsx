@@ -25,8 +25,9 @@ export default function AuthorBook() {
         .then((resp) => resp.json())
         .then((result) => {
             if (result?.detail?.code == 401) {
-                alert(result.detail.message)
+                alert(result.detail.error)
                 navigate("/author/login")
+                return;
             }
 
             if (result.code == 200) {
