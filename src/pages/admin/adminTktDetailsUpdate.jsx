@@ -20,7 +20,7 @@ const PRIORITY_MAP = {
 export default function AdminTicketDetailsUpdate() {
     const { ticket_code } = useParams();
     const navigate = useNavigate();
-    const { adminLoginData } = useStore();
+    const { adminLoginData, setAdminLoginData } = useStore();
 
     const [tktDetails, setTktDetails] = useState(null);
     const [messages, setMessages] = useState([]);
@@ -51,6 +51,7 @@ export default function AdminTicketDetailsUpdate() {
             .then(r => r.json())
             .then(result => {
                 if (result?.detail?.code === 401) {
+                    setAdminLoginData({})
                     alert(result.detail.error)
                     navigate("/admin/login");
                     return;

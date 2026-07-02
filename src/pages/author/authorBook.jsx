@@ -5,7 +5,7 @@ import BookCard from "../../components/bookCard";
 import { useNavigate } from "react-router-dom";
 
 export default function AuthorBook() {
-    const { authorLoginData } = useStore();
+    const { authorLoginData, setAuthorLoginData } = useStore();
     const [books, setBooks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -25,6 +25,7 @@ export default function AuthorBook() {
         .then((resp) => resp.json())
         .then((result) => {
             if (result?.detail?.code == 401) {
+                setAuthorLoginData({})
                 alert(result.detail.error)
                 navigate("/author/login")
                 return;

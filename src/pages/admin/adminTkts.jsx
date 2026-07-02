@@ -19,7 +19,7 @@ const PRIORITY_MAP = {
 
 export default function AdminTickets() {
     const navigate = useNavigate();
-    const { adminLoginData } = useStore();
+    const { adminLoginData, setAdminLoginData } = useStore();
 
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -32,8 +32,7 @@ export default function AdminTickets() {
     const [endDate, setEndDate] = useState("");
 
     const pollingRef = useRef(null);
-
-
+    
     const fetchTickets = useCallback((showLoader = false) => {
         if (showLoader) setLoading(true);
 
@@ -55,8 +54,10 @@ export default function AdminTickets() {
         })
             .then(r => r.json())
             .then(result => {
+
                 if (result?.detail?.code == 401) {
-                    clearInterval(pollingRef.current);
+                    setAdminLoginData({})
+                    clearInterval(pollingRef.current)
                     alert(result.detail.error);
                     navigate("/admin/login");
                     return;
@@ -75,7 +76,7 @@ export default function AdminTickets() {
 
     useEffect(() => {
         fetchTickets(true);
-        pollingRef.current = setInterval(() => fetchTickets(false), 5000);
+        pollingRef.current = setInterval(() =>fetchTickets(false), 5000);
         return () => clearInterval(pollingRef.current);
     }, [fetchTickets]);
 

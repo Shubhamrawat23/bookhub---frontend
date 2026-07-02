@@ -15,7 +15,7 @@ export default function AuthorTicketChat() {
     const navigate = useNavigate();
     const location = useLocation();
     const tkt_data = location.state?.tktData;
-    const { authorLoginData } = useStore();
+    const { authorLoginData , setAuthorLoginData} = useStore();
 
     // const [ticket, setTicket] = useState(null);
     const [messages, setMessages] = useState([]);
@@ -42,6 +42,7 @@ export default function AuthorTicketChat() {
         .then((resp) => resp.json())
         .then((result) => {
             if (result?.detail?.code == 401) {
+                setAuthorLoginData({})
                 clearInterval(pollingRef.current)
                 alert(result.detail.error)
                 navigate("/author/login")
@@ -94,6 +95,7 @@ export default function AuthorTicketChat() {
             .then((resp) => resp.json())
             .then((result) => {
                 if (result?.detail?.code == 401) {
+                    setAuthorLoginData({})
                     alert(result.detail.error)
                     navigate("/author/login")
                     return;

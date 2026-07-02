@@ -6,7 +6,7 @@ import NewTicketModal from "../../components/newTktModel.jsx";
 import { useNavigate } from "react-router-dom";
 
 export default function AuthorTickets() {
-    const { authorLoginData, setTktData } = useStore();
+    const { authorLoginData, setTktData, setAuthorLoginData } = useStore();
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -30,6 +30,7 @@ export default function AuthorTickets() {
         .then((resp) => resp.json())
         .then((result) => {
             if (result?.detail?.code == 401) {
+                setAuthorLoginData({})
                 clearInterval(pollingTktList.current);
                 alert(result.detail.error)
                 navigate("/author/login")
