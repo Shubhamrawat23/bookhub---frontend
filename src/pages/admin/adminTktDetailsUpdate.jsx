@@ -30,7 +30,7 @@ export default function AdminTicketDetailsUpdate() {
     const [newPriority, setNewPriority] = useState("");
     const [message, setMessage] = useState("");
     const [sending, setSending] = useState(false);
-    const [note, setNote] = useState(""); 
+    const [note, setNote] = useState("");
     const [savingNote, setSavingNote] = useState(false);
     const [updating, setUpdating] = useState(false);
     const [updateMsg, setUpdateMsg] = useState(null);
@@ -336,7 +336,7 @@ export default function AdminTicketDetailsUpdate() {
 
                 {/* Left Area — Dynamic Tabs Panel */}
                 <div className="lg:col-span-2 flex flex-col bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden" style={{ height: "600px" }}>
-                    
+
                     <div className="flex border-b border-slate-100">
                         <button onClick={() => setActiveTab("chat")}
                             className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition border-b-2
@@ -518,6 +518,21 @@ export default function AdminTicketDetailsUpdate() {
                             <i className="fa-solid fa-circle-info text-[#166bba] fa-sm"></i>
                             Ticket Info
                         </h3>
+                        {tktDetails?.attachment_url && (<div className="flex flex-col gap-2 py-2">
+                            <div className="flex justify-between items-center">
+                                <span className="text-slate-400 text-sm font-medium">Attachment</span>
+                            </div>
+                            {tktDetails?.attachment_url && (
+                                <div className="mt-1 max-w-md overflow-hidden rounded-lg border border-slate-200 bg-slate-50 p-1 shadow-sm transition hover:shadow-md">
+                                    <img
+                                        src={`${BASE_URL}/${tktDetails.attachment_url}`}
+                                        alt="Attachment Preview"
+                                        className="w-full h-auto max-h-64 object-cover rounded-md"
+                                    />
+                                </div>
+                            )}
+                        </div>)
+                        }
                         <div className="flex flex-col gap-2 text-xs">
                             <div className="flex justify-between">
                                 <span className="text-slate-400">Category</span>
