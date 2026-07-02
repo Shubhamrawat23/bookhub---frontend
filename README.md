@@ -10,20 +10,20 @@ Frontend application for the Bookhub Author & Admin Support System built using R
 
 https://bookleafpub-frontend.vercel.app  
  or  
-https://bookleafpub-frontend.vercel.app/author/login
+https://bookhub-front-end.vercel.appp/author/login
 
 
 ---
 
 ## Admin Portal
 
-https://bookleafpub-frontend.vercel.app/admin/login
+https://bookhub-front-end.vercel.app/admin/login
 
 ---
 
 ## Backend API
 
-https://bookleafpub-backend-production.up.railway.app
+https://bookhub-back-end-production.up.railway.app
 
 ---
 
@@ -34,7 +34,7 @@ https://bookleafpub-backend-production.up.railway.app
 Email: sa001@email.com
 Password: 123456
 
-##### Note: You can create/update new password for other authors also through forgot password (https://bookleafpub-frontend.vercel.app/author/forgot-password)
+##### Note: You can create/update new password for other authors also through forgot password (https://bookhub-front-end.vercel.app/author/forgot-password)
 ---
 
 ## Admin Portal
@@ -208,7 +208,7 @@ Create a `.env` file inside frontend root.
 Example:
 
 ```env
-VITE_BASE_URL=https://bookleafpub-backend-production.up.railway.app
+VITE_BASE_URL=https://bookhub-back-end-production.up.railway.app
 ```
 
 ---
@@ -341,8 +341,6 @@ to allow secure frontend-backend communication.
 - JWT authentication not implemented yet
 - Polling used instead of WebSockets
 - Basic session persistence
-- No notification system yet
-- No advanced search/filter system yet
 
 ---
 
@@ -350,11 +348,6 @@ to allow secure frontend-backend communication.
 
 - JWT authentication
 - Protected route middleware
-- WebSocket real-time messaging
-- Notification system
-- Better error boundaries
-- Infinite scroll/pagination
-- Dark mode
 - AI-assisted ticket categorization
 
 ---
@@ -383,5 +376,6 @@ If evolving this project further into production:
 
 - JWT refresh token flow
 - RBAC authorization
+- AI-assisted ticket categorization
 
 ---
