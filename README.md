@@ -8,7 +8,7 @@ Frontend application for the Bookhub Author & Admin Support System built using R
 
 ## Author Portal
 
-https://bookhub-frontend.vercel.app  
+https://bookhub-frontend.vercel.app
  or  
 https://bookhub-front-end.vercel.appp/author/login
 
