@@ -30,6 +30,7 @@ export default function LoginCard({ role }) {
         if (role == "Author") {
             fetch(`${BASE_URL}/auth/author/login`, {
                 method: "POST",
+                credentials: "include",
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -57,6 +58,7 @@ export default function LoginCard({ role }) {
         if (role == "Admin") {
             fetch(`${BASE_URL}/auth/admin/login`, {
                 method: "POST",
+                credentials: "include",
                 headers: {
                     "Content-Type": "application/json"
                 },

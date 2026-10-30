@@ -17,23 +17,23 @@ export default function AuthorBook() {
 
         fetch(`${BASE_URL}/author/book/list`, {
             method: "GET",
+            credentials: "include",
             headers: {
                 "Accept": "application/json",
-                "Authorization": `${authorLoginData.token_type} ${authorLoginData.access_token}`
             }
         })
         .then((resp) => resp.json())
         .then((result) => {
-            if (result?.detail?.code == 401) {
-                setAuthorLoginData({})
-                alert(result.detail.error)
-                navigate("/author/login")
-                return;
-            }
-
             if (result.code == 200) {
                 setBooks(result.data);
+            } else if (result?.code == 401 || result?.code == 403) {
+                setAuthorLoginData({})
+                alert(result.error)
+                navigate("/author/login")
+            } else{
+                alert(result?.message)
             }
+
         })
         .catch((err) => {
             console.error(err);
@@ -41,7 +41,7 @@ export default function AuthorBook() {
         })
         .finally(() => setLoading(false));
 
-    }, [authorLoginData]);
+    }, []);
 
     // Loading
     if (loading) return (

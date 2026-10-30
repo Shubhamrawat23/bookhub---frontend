@@ -1,6 +1,6 @@
 # Bookhub Assignment Frontend
 
-Frontend application for the Bookhub Author & Admin Support System built using React, Vite, TailwindCSS, Zustand, and React Router DOM.
+Frontend application for the Bookhub Author & Admin Support System built using React, Vite, TailwindCSS, Zustand, and React Router DOM. Features a secure cookie-based session management and real-time WebSocket chat.
 
 ---
 
@@ -61,11 +61,12 @@ The application includes:
 - Admin Portal
 - Book Dashboard
 - Support Ticket System
-- Ticket Chat System
+- Real-time Ticket Chat System (WebSockets)
 - Responsive Layouts
-- Session Persistence using Zustand
+- Secure Session Persistence (HttpOnly Cookies)
 
-The frontend communicates with the FastAPI backend through REST APIs.
+The frontend communicates with the FastAPI backend through REST APIs and persistent WebSocket connections.
+
 
 ---
 
@@ -98,7 +99,7 @@ The frontend communicates with the FastAPI backend through REST APIs.
 - Book dashboard
 - Create support tickets
 - View ticket history
-- Ticket messaging system
+- Real-time ticket messaging (WebSocket)
 
 ---
 
@@ -107,7 +108,7 @@ The frontend communicates with the FastAPI backend through REST APIs.
 - Admin login
 - View all tickets
 - Manage ticket status
-- Ticket chat management
+- Real-time ticket chat management (WebSocket)
 
 ---
 
@@ -165,23 +166,22 @@ Layouts
    ↓
 Reusable Components
    ↓
-API Calls
+API Calls & WebSocket Connections
    ↓
 FastAPI Backend
 ```
 
 ---
 
-# State Management
+# State Management & Session Handling
 
-Zustand is used for lightweight global state management.
+Zustand is used for lightweight global UI state management.
 
-Features handled through Zustand:
+- Session Persistence: JWT tokens are securely managed by the browser via HttpOnly Cookies (prevents XSS attacks).
+- Zustand Usage: Stores the user's profile data (name, role, ID) to render the UI.
+- Auth Verification (/me): On layout mount, a request is sent to /auth/me to validate the cookie and re-hydrate Zustand. If unauthorized, the user is redirected to login.
 
-- Author session persistence
-- Admin session persistence
-- Ticket state handling
-- LocalStorage persistence
+
 
 ---
 
@@ -278,29 +278,15 @@ The frontend integrates with FastAPI backend APIs hosted on Railway.
 
 Features integrated:
 
-- Authentication APIs
+- Authentication APIs (with credentials: "include")
 - Books APIs
 - Ticket APIs
 - Admin APIs
+- WebSocket APIs
 
 ---
 
-# Session Handling
-
-Current implementation uses:
-
-- Zustand store
-- LocalStorage persistence
-
-This allows:
-
-- Persistent login sessions
-- Role-based frontend access
-- Session restore after refresh
-
----
-
-# API Communication
+# API & WebSocket Communication
 
 The frontend communicates using Fetch API.
 
@@ -312,6 +298,15 @@ GET /author/book/list
 POST /ticket/create
 GET /ticket/author/list
 ```
+(All API requests include credentials: "include" to pass the HttpOnly cookies).
+
+
+### WebSocket Endpoints:
+``` text
+ws://domain/ticket/ws/author/chat/{ticket_code}
+ws://domain/ticket/ws/admin/chat/{ticket_code}
+```
+(WebSocket connections automatically pass the HttpOnly cookie during the handshake).
 
 ---
 
@@ -332,23 +327,23 @@ CORS configuration handled between:
 - Vercel frontend
 - Railway backend
 
-to allow secure frontend-backend communication.
+to allow secure frontend-backend communication. The backend is configured with allow_credentials=True and specific origins to support HttpOnly cookies.
 
 ---
 
 # Known Limitations
 
-- JWT authentication not implemented yet
-- Polling used instead of WebSockets
-- Basic session persistence
+- Access tokens expire in 60 minutes (requires re-login; no refresh token flow yet).
+- No push notification system yet (only in-app chat updates).
 
 ---
 
 # Future Improvements
 
-- JWT authentication
-- Protected route middleware
-- AI-assisted ticket categorization
+- Implement Refresh Token rotation for seamless session extension.
+- Add global error boundary for UI crashes.
+- AI-assisted ticket categorization.
+
 
 ---
 
@@ -359,12 +354,13 @@ to allow secure frontend-backend communication.
 - Zustand selected for lightweight global state
 - TailwindCSS used for rapid UI development
 - React Router DOM used for SPA routing
+- HttpOnly Cookies chosen over LocalStorage for secure JWT storage
 
 ---
 
 # Tradeoffs
 
-- Polling used instead of WebSockets for assignment simplicity
+- WebSockets chosen over HTTP polling for chat to provide instant updates and reduce server load.
 - Focused on core functionality over heavy animations
 - Lightweight authentication/session system used for MVP scope
 
@@ -374,8 +370,11 @@ to allow secure frontend-backend communication.
 
 If evolving this project further into production:
 
-- JWT refresh token flow
-- RBAC authorization
-- AI-assisted ticket categorization
+- Implement Refresh Token flow
+- Add WebSocket reconnection logic with exponential backoff
+- Add Sentry for error tracking
+- Implement AI-assisted ticket categorization
+
+
 
 ---

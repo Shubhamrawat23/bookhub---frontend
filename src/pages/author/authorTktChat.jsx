@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { BASE_URL } from "../../config.js";
 import { useStore } from "../../store/store.jsx";
@@ -15,103 +15,108 @@ export default function AuthorTicketChat() {
     const navigate = useNavigate();
     const location = useLocation();
     const tkt_data = location.state?.tktData;
-    const { authorLoginData , setAuthorLoginData} = useStore();
+    const { authorLoginData, setAuthorLoginData } = useStore();
 
     // const [ticket, setTicket] = useState(null);
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [message, setMessage] = useState("");
-    const [sending, setSending] = useState(false);
+    const [wsStatus, setWsStatus] = useState("connecting"); //connecting | reconnecting | open | closed
 
+    const wsRef = useRef(null);
     const bottomRef = useRef(null);
-    const pollingRef = useRef(null);
 
 
-    const fetchChat = useCallback((showLoader = false) => {
+    const fetchChatHistory = useCallback((showLoader = false) => {
         if (!authorLoginData?.author_id || !ticket_code) return;
-        if (showLoader) setLoading(true);
+        // if (showLoader) setLoading(true);
 
         fetch(`${BASE_URL}/ticket/author/tkt_chat?tkt_code=${ticket_code}`, {
             method: "GET",
-            headers: { 
+            credentials: "include",
+            headers: {
                 "Accept": "application/json",
-                "Authorization": `${authorLoginData.token_type} ${authorLoginData.access_token}` 
+                // "Authorization": `${authorLoginData.token_type} ${authorLoginData.access_token}` 
             }
         })
-        .then((resp) => resp.json())
-        .then((result) => {
-            if (result?.detail?.code == 401) {
-                setAuthorLoginData({})
-                clearInterval(pollingRef.current)
-                alert(result.detail.error)
-                navigate("/author/login")
-                return;
-            }
-            if (result.code == 400) {
-                alert(result.message)
-            }
-            if (result.code == 404) {
-                alert(result.message)
-            }
+            .then((resp) => resp.json())
+            .then((result) => {
+                if (result.code === 200) {
+                    setMessages(result.data);
+                    setError(null);
+                } else if (result?.code == 401 || result?.code == 403) {
+                    setAuthorLoginData({})
+                    alert(result.error)
+                    navigate("/author/login")
+                    return;
+                }else{
+                    alert(result?.message)
+                }
+            })
+            .catch(() => setError("Something went wrong."))
+            .finally(() => { if (showLoader) setLoading(false) });
 
-            if (result.code === 200) {
-                setMessages(result.data);
-                setError(null);
-            }
-        })
-        .catch(() => setError("Something went wrong."))
-        .finally(() => {if (showLoader) setLoading(false)});
-
-    }, [authorLoginData?.access_token, ticket_code]);
+    }, [ticket_code, authorLoginData?.author_id]);
 
     useEffect(() => {
-        fetchChat(true);
-        pollingRef.current = setInterval(() => fetchChat(false), 5000);
-        return () => clearInterval(pollingRef.current);
-    }, [fetchChat]);
+        fetchChatHistory(true);
+    }, [fetchChatHistory]);
 
     // Auto scroll to bottom on new message
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
+
+    // add web socket
+    useEffect(() => {
+        if (!ticket_code) return;
+
+        const ws_url = `${BASE_URL.replace(/(https?):\/\//, 'ws://')}/ticket/ws/author/chat?ticket_code=${ticket_code}`
+
+        const ws = new WebSocket(ws_url);
+        console.log(ws);
+        
+        wsRef.current = ws;
+        setWsStatus("connecting");
+
+        ws.onopen = () => {
+            console.log("ws open");
+            
+            setWsStatus("open");
+        };
+
+        ws.onmessage = (event) => {
+            let msg;
+            try { msg = JSON.parse(event.data); } catch { return; }
+
+            setMessages((prev) => msg.id != null && prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]);
+        };
+
+        ws.onclose = () => {
+            setWsStatus("closed");
+        };
+
+        return () => {
+            wsRef.current = null;
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.close();
+            } else if (ws.readyState === WebSocket.CONNECTING) {
+                ws.onopen = () => ws.close();
+            }
+        };
+    }, [ticket_code]);
+
+
     // Send message 
     const handleSend = () => {
-        if (!message.trim() || sending) return;
-        setSending(true);
-
-        fetch(`${BASE_URL}/ticket/author/save_message`, {
-            method: "POST",
-            headers: { 
-                "Content-Type": "application/json",
-                "Authorization": `${authorLoginData.token_type} ${authorLoginData.access_token}`
-            },
-            body: JSON.stringify({
-                ticket_code: ticket_code,
-                message: message.trim()
-            })
-        })
-            .then((resp) => resp.json())
-            .then((result) => {
-                if (result?.detail?.code == 401) {
-                    setAuthorLoginData({})
-                    alert(result.detail.error)
-                    navigate("/author/login")
-                    return;
-                }
-                if (result.message == 400) {
-                    alert(result.message)
-                }if (result.code == 422) {
-                    alert(result.message)
-                }
-                if (result.code === 200 || result.code === 201) {
-                    setMessage("");
-                    fetchChat(false);
-                }
-            })
-            .catch((err) => console.error(err))
-            .finally(() => setSending(false));
+       const text = message.trim();
+        const ws = wsRef.current;
+        if (!text || ws?.readyState !== WebSocket.OPEN) return;
+ 
+        ws.send(JSON.stringify({ message: text }));
+        setMessage("");
     }
 
     const handleKeyDown = (e) => {
@@ -135,7 +140,7 @@ export default function AuthorTicketChat() {
         });
     }
 
-    // ── Loading ───────────────────────────────────────────
+    // Loading --------
     if (loading) return (
         <div className="flex items-center justify-center h-full min-h-screen">
             <div className="flex items-center gap-2 text-slate-400 text-sm">
@@ -145,7 +150,7 @@ export default function AuthorTicketChat() {
         </div>
     );
 
-    // ── Error ─────────────────────────────────────────────
+    // Error -----
     if (error) return (
         <div className="flex items-center justify-center h-full min-h-screen">
             <div className="flex items-center gap-2 text-red-500 text-sm">
@@ -157,11 +162,12 @@ export default function AuthorTicketChat() {
 
     const statusInfo = STATUS_MAP[tkt_data?.status] ?? STATUS_MAP[0];
     const isClosed = tkt_data?.status === 3 || tkt_data?.status === 2;
+    const wsOpen = wsStatus === "open";
 
     return (
         <div className="flex flex-col h-[calc(100vh-57px)] bg-slate-50">
 
-            {/* ── Top Bar ───────────────────────────────── */}
+            {/* ------ Top Bar ------- */}
             <div className="bg-white border-b border-slate-100 shadow-sm px-5 py-3 flex items-center gap-4">
 
                 {/* Back */}
@@ -193,7 +199,23 @@ export default function AuthorTicketChat() {
                 </span>
             </div>
 
-            {/* ── Messages ──────────────────────────────── */}
+
+            {/* ----- Connection status strip ---- */}
+            {!isClosed && !wsOpen && (
+                wsStatus === "connecting" ? (
+                    <div className="bg-yellow-50 text-yellow-700 text-xs px-5 py-1.5 flex items-center gap-2">
+                        <i className="fa-solid fa-spinner fa-spin fa-sm"></i>
+                        Connecting...
+                    </div>
+                ) : (
+                    <div className="bg-red-50 text-red-600 text-xs px-5 py-1.5 flex items-center gap-2">
+                        <i className="fa-solid fa-circle-exclamation fa-sm"></i>
+                        Connection lost. Refresh the page to continue chatting.
+                    </div>
+                )
+            )}
+
+            {/* ----- Messages ----- */}
             <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
 
                 {messages.length === 0 ? (
@@ -251,7 +273,7 @@ export default function AuthorTicketChat() {
                 <div ref={bottomRef} />
             </div>
 
-            {/* ── Input Bar ─────────────────────────────── */}
+            {/* ----- Input Bar ------ */}
             <div className="bg-white border-t border-slate-100 px-4 py-3">
                 {isClosed ? (
                     <div className="flex items-center justify-center gap-2 text-slate-400 text-sm py-1">
@@ -264,19 +286,16 @@ export default function AuthorTicketChat() {
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             onKeyDown={handleKeyDown}
-                            placeholder="Type your message... (Enter to send)"
+                            placeholder={wsOpen ? "Type your message... (Enter to send)" : "Waiting for connection..."}
                             rows={1}
                             className="flex-1 border border-slate-200 bg-slate-50 rounded-xl px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
                         />
                         <button
                             onClick={handleSend}
-                            disabled={!message.trim() || sending}
+                            disabled={!message.trim() || !wsOpen}
                             className="w-10 h-10 rounded-xl bg-[#166bba] text-white flex items-center justify-center hover:opacity-90 transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                         >
-                            {sending
-                                ? <i className="fa-solid fa-spinner fa-spin fa-sm"></i>
-                                : <i className="fa-solid fa-paper-plane fa-sm"></i>
-                            }
+                            <i className="fa-solid fa-paper-plane fa-sm"></i>
                         </button>
                     </div>
                 )}

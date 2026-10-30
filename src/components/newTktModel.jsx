@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { BASE_URL } from "../config";
 import { useStore } from "../store/store.jsx";
+import { useNavigate } from "react-router-dom";
 
 const CATEGORY_OPTIONS = [
     { value: "", label: "Select a category" },
@@ -14,6 +15,7 @@ export default function NewTicketModal({ onClose, onSuccess, books = [] }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [attachment, setAttachment] = useState(null);
+    const navigation = useNavigate()
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -47,22 +49,30 @@ export default function NewTicketModal({ onClose, onSuccess, books = [] }) {
 
         fetch(`${BASE_URL}/ticket/author/create`, {
             method: "POST",
-            headers:{
-                "Authorization": `${authorLoginData.token_type} ${authorLoginData.access_token}`
-            },
+            credentials: "include",
+            // headers:{
+            //     "Authorization": `${authorLoginData.token_type} ${authorLoginData.access_token}`
+            // },
             body: formData
         })
-            .then((resp) => resp.json())
-            .then((result) => {
-                if (result.code === 200 || result.code === 201) {
-                    onSuccess();
-                    onClose();
-                } else {
-                    setError(result.message);
+        .then((resp) => resp.json())
+        .then((result) => {
+            if (result.code === 200 || result.code === 201) {
+                onSuccess();
+                onClose();
+            }
+            else if (result.code == 422) {
+                setError(`${result?.error?.field}: ${result?.error?.detail}`);
+            }else{
+                setError(result?.error)
+                alert(result?.error)
+                if (result.code == 401 || result?.code == 403) {
+                    navigation("/author/login");
                 }
-            })
-            .catch(() => setError("Something went wrong. Please try again."))
-            .finally(() => setLoading(false));
+            }
+        })
+        .catch(() => setError("Something went wrong. Please try again."))
+        .finally(() => setLoading(false));
 
     }
 

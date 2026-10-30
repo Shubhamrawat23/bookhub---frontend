@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../config";
 import { useStore } from "../../store/store";
@@ -29,53 +29,57 @@ export default function AdminTicketDetailsUpdate() {
     const [newStatus, setNewStatus] = useState("");
     const [newPriority, setNewPriority] = useState("");
     const [message, setMessage] = useState("");
-    const [sending, setSending] = useState(false);
+    // const [sending, setSending] = useState(false);
     const [note, setNote] = useState("");
     const [savingNote, setSavingNote] = useState(false);
     const [updating, setUpdating] = useState(false);
     const [updateMsg, setUpdateMsg] = useState(null);
     const [activeTab, setActiveTab] = useState("chat");
+    const [wsStatus, setWsStatus] = useState("connecting");
 
     const bottomRef = useRef(null);
-    const chatPollingRef = useRef(null);
+    const wsRef = useRef(null);
 
-    // ── Fetch ticket details (mount + after update) ────────
+
+    // Fetch ticket details (mount + after update) --------
     const fetchTktDetails = useCallback((showLoader = false) => {
         if (!ticket_code) return;
         if (showLoader) setLoading(true);
 
         fetch(`${BASE_URL}/ticket/admin/tkt_detail?ticket_code=${ticket_code}`, {
             method: "GET",
-            headers: { "accept": "application/json", "Authorization": `${adminLoginData.token_type} ${adminLoginData.access_token}` }
+            credentials: "include",
+            headers: { "accept": "application/json", 
+                // "Authorization": `${adminLoginData.token_type} ${adminLoginData.access_token}` 
+            }
         })
             .then(r => r.json())
             .then(result => {
-                if (result?.detail?.code === 401) {
-                    setAdminLoginData({})
-                    alert(result.detail.error)
-                    navigate("/admin/login");
-                    return;
-                }
                 if (result.code === 200) {
                     setTktDetails(result.data);
                     setNewStatus(prev => prev === "" ? String(result.data?.status ?? "0") : prev);
                     setNewPriority(prev => prev === "" ? String(result.data?.priority ?? "3") : prev);
                     setError(null);
+                } else if (result?.code === 401 || result?.code == 403) {
+                    setAdminLoginData({})
+                    alert(result.error)
+                    navigate("/admin/login");
+                    return;
                 } else {
+                    alert(result.message)
                     setError(result.message);
                 }
             })
             .catch(() => setError("Something went wrong."))
-            .finally(() => setLoading(false));
+            .finally(() => setLoading(false)); 
 
-    }, [ticket_code, adminLoginData?.access_token, navigate]);
+    }, [ticket_code, navigate]);
 
     // Only on mount
     useEffect(() => {
         fetchTktDetails(true);
     }, [fetchTktDetails]);
 
-    // ── Fetch messages (polled every 5s) ───────────────────
     const fetchChat = useCallback(() => {
         if (!ticket_code) return;
         if (!adminLoginData?.admin_id) return;
@@ -83,12 +87,22 @@ export default function AdminTicketDetailsUpdate() {
 
         fetch(`${BASE_URL}/ticket/admin/tkt_chat?tkt_code=${ticket_code}`, {
             method: "GET",
-            headers: { "accept": "application/json", "Authorization": `${adminLoginData.token_type} ${adminLoginData.access_token}` }
+            credentials: "include",
+            headers: { "accept": "application/json", 
+                // "Authorization": `${adminLoginData.token_type} ${adminLoginData.access_token}` 
+            }
         })
             .then(r => r.json())
             .then(result => {
-                if (result.code === 200) {
+                if (result.code == 200) {
                     setMessages(result.data);
+                } else if (result?.code == 403 || result?.code == 401) {
+                    setAdminLoginData({})
+                    alert(result.error)
+                    navigate("/admin/login")
+                    return;
+                } else{
+                    alert(result?.message)
                 }
             })
             .catch(err => console.error(err));
@@ -97,20 +111,59 @@ export default function AdminTicketDetailsUpdate() {
 
     useEffect(() => {
         fetchChat();
-        chatPollingRef.current = setInterval(() => fetchChat(), 5000);
-        return () => clearInterval(chatPollingRef.current);
-    }, [fetchChat]);
+    }, []);
 
     // Auto scroll to bottom on new message
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
-    // ── Generic tkt action helper ──────────────────────────
+
+    // set websoket for admin -------
+    useEffect(() => {
+        if (!ticket_code) return;
+
+        const ws_url = `${BASE_URL.replace(/(https?):\/\//, 'ws://')}/ticket/ws/admin/chat?ticket_code=${ticket_code}`;
+
+        const ws = new WebSocket(ws_url);
+        wsRef.current = ws;
+        setWsStatus("connecting");
+
+        ws.onopen = () => setWsStatus("open");
+
+        ws.onmessage = (event) => {
+            let msg;
+            try { msg = JSON.parse(event.data); } catch { return; }
+
+            setMessages((prev) =>
+                msg.id != null && prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]
+            );
+        };
+
+        ws.onclose = () => {
+            if (wsRef.current === ws) setWsStatus("closed");
+        };
+
+        return () => {
+            wsRef.current = null;
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.close();
+            } else if (ws.readyState === WebSocket.CONNECTING) {
+                ws.onopen = () => ws.close();   // let it finish connecting, then close it
+            }
+        };
+    }, [ticket_code]);
+
+
+    // Generic tkt action helper -------
     const tktAction = async (action, action_val) => {
         const result = await fetch(`${BASE_URL}/ticket/admin/tkt_action`, {
             method: "PUT",
-            headers: { "Content-Type": "application/json", "Authorization": `${adminLoginData.token_type} ${adminLoginData.access_token}` },
+            credentials: "include",
+            headers: { 
+                "Content-Type": "application/json", 
+                // "Authorization": `${adminLoginData.token_type} ${adminLoginData.access_token}` 
+            },
             body: JSON.stringify({
                 ticket_code: ticket_code,
                 action: action,
@@ -124,28 +177,15 @@ export default function AdminTicketDetailsUpdate() {
         return result;
     }
 
-    // ── Send message ───────────────────────────────────────
+    // Send message ---------- 
     const handleSend = () => {
-        if (!message.trim() || sending) return;
-        setSending(true);
+        const text = message.trim();
+        const ws = wsRef.current;
+        if (!text || ws?.readyState !== WebSocket.OPEN) return;
 
-        fetch(`${BASE_URL}/ticket/admin/save_message`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": `${adminLoginData.token_type} ${adminLoginData.access_token}` },
-            body: JSON.stringify({
-                ticket_code: ticket_code,
-                message: message.trim()
-            })
-        })
-            .then(r => r.json())
-            .then(result => {
-                if (result.code === 200 || result.code === 201) {
-                    setMessage("");
-                    fetchChat();
-                }
-            })
-            .catch(err => console.error(err))
-            .finally(() => setSending(false));
+        ws.send(JSON.stringify({ message: text }));
+        setMessage("");
+
     }
 
     const handleKeyDown = (e) => {
@@ -155,36 +195,51 @@ export default function AdminTicketDetailsUpdate() {
         }
     }
 
-    // ── Update status + priority ───────────────────────────
+
+    const statusChanged   = tktDetails != null && newStatus   !== String(tktDetails.status);
+    const priorityChanged = tktDetails != null && newPriority !== String(tktDetails.priority);
+    const hasChanges = statusChanged || priorityChanged;
+
+    // Update status + priority ----------
     const handleUpdate = async () => {
         if (updating) return;
         setUpdating(true);
         setUpdateMsg(null);
 
         try {
-            const statusRes = await tktAction("status", newStatus);
-            if (statusRes.code !== 200) {
-                setUpdateMsg({ type: "error", text: statusRes.message });
-                return;
+            let latest = null
+
+            if(statusChanged){
+                const statusRes = await tktAction("status", newStatus);
+                if (statusRes.code !== 200) {
+                    setUpdateMsg({ type: "error", text: statusRes?.message });
+                    return;
+                }
+                latest = statusRes.data;
             }
 
-            const priorityRes = await tktAction("priority", newPriority);
-            if (priorityRes.code !== 200) {
-                setUpdateMsg({ type: "error", text: priorityRes.message });
-                return;
+            if (priorityChanged) {
+                const priorityRes = await tktAction("priority", newPriority);
+                if (priorityRes.code !== 200) {
+                    setUpdateMsg({ type: "error", text: priorityRes?.message });
+                    return;
+                }
+                latest = priorityRes.data;
             }
 
-            setTktDetails(priorityRes.data);
+            if (latest) setTktDetails(latest);
+            
             setUpdateMsg({ type: "success", text: "Ticket updated successfully." });
 
-        } catch {
+        } catch (e){
+            console.error("handleUpdate failed:", e);   
             setUpdateMsg({ type: "error", text: "Update failed." });
         } finally {
             setUpdating(false);
         }
     }
 
-    // ── Assign to self ─────────────────────────────────────
+    // Assign to self --------
     const handleAssign = async () => {
         try {
             await tktAction("assigned_by", adminLoginData?.admin_id);
@@ -198,7 +253,7 @@ export default function AdminTicketDetailsUpdate() {
         }
     }
 
-    // ── Save internal note ─────────────────────────────────
+    // Save internal note -----------
     const handleSaveNote = async () => {
         if (!note.trim() || savingNote) return;
         setSavingNote(true);
@@ -263,6 +318,7 @@ export default function AdminTicketDetailsUpdate() {
 
     const statusInfo = STATUS_MAP[tktDetails?.status] ?? STATUS_MAP[0];
     const priorityInfo = PRIORITY_MAP[tktDetails?.priority] ?? PRIORITY_MAP[4];
+    const wsOpen = wsStatus === "open";
 
     if (loading) return (
         <div className="flex items-center justify-center h-64">
@@ -364,6 +420,21 @@ export default function AdminTicketDetailsUpdate() {
                     {/* Chat Tab View */}
                     {activeTab === "chat" && (
                         <>
+                            {/* Connection status strip */}
+                            {!wsOpen && (
+                                wsStatus === "connecting" ? (
+                                    <div className="bg-yellow-50 text-yellow-700 text-xs px-5 py-1.5 flex items-center gap-2">
+                                        <i className="fa-solid fa-spinner fa-spin fa-sm"></i>
+                                        Connecting...
+                                    </div>
+                                ) : (
+                                    <div className="bg-red-50 text-red-600 text-xs px-5 py-1.5 flex items-center gap-2">
+                                        <i className="fa-solid fa-circle-exclamation fa-sm"></i>
+                                        Connection lost. Refresh the page to continue chatting.
+                                    </div>
+                                )
+                            )}
+
                             <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
                                 {messages.length === 0 ? (
                                     <div className="flex flex-col items-center justify-center h-full gap-2 text-slate-400">
@@ -371,10 +442,10 @@ export default function AdminTicketDetailsUpdate() {
                                         <p className="text-sm">No messages yet.</p>
                                     </div>
                                 ) : (
-                                    messages.map((msg) => {
+                                    messages.map((msg, i) => {
                                         const isAdmin = msg.sender_type === "admin";
                                         return (
-                                            <div key={msg.id} className={`flex ${isAdmin ? "justify-end" : "justify-start"}`}>
+                                            <div key={msg.id ?? `${msg.created_at}-${i}`} className={`flex ${isAdmin ? "justify-end" : "justify-start"}`}>
                                                 {!isAdmin && (
                                                     <div className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-semibold mr-2 flex-shrink-0 self-end mb-1">
                                                         {tktDetails?.author_name?.[0]?.toUpperCase() ?? "A"}
@@ -408,15 +479,13 @@ export default function AdminTicketDetailsUpdate() {
                                     value={message}
                                     onChange={e => setMessage(e.target.value)}
                                     onKeyDown={handleKeyDown}
-                                    placeholder="Reply to author... (Enter to send)"
+                                    placeholder={wsOpen ? "Reply to author... (Enter to send)" : "Waiting for connection..."}
                                     rows={1}
                                     className="flex-1 border border-slate-200 bg-slate-50 rounded-xl px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none"
                                 />
-                                <button onClick={handleSend} disabled={!message.trim() || sending}
+                                <button onClick={handleSend} disabled={!message.trim() || !wsOpen}
                                     className="w-10 h-10 rounded-xl bg-[#166bba] text-white flex items-center justify-center hover:opacity-90 transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0">
-                                    {sending
-                                        ? <i className="fa-solid fa-spinner fa-spin fa-sm"></i>
-                                        : <i className="fa-solid fa-paper-plane fa-sm"></i>}
+                                    <i className="fa-solid fa-paper-plane fa-sm"></i>
                                 </button>
                             </div>
                         </>
@@ -506,7 +575,7 @@ export default function AdminTicketDetailsUpdate() {
                             </select>
                         </div>
 
-                        <button onClick={handleUpdate} disabled={updating}
+                        <button onClick={handleUpdate} disabled={updating || !hasChanges}
                             className="w-full py-2 rounded-xl text-sm font-semibold text-white bg-[#166bba] hover:opacity-90 transition active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
                             {updating
                                 ? <><i className="fa-solid fa-spinner fa-spin fa-sm"></i> Updating...</>

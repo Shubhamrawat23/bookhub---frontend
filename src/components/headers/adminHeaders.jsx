@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useStore } from "../../store/store";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { BASE_URL } from "../../config";
 
 export default function AdminPortalHeader() {
     const { adminLoginData } = useStore();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const navigate = useNavigate()
 
     const getInitials = (name) => {
         if (!name) return "A";
@@ -12,8 +14,18 @@ export default function AdminPortalHeader() {
     };
 
     const handleLogout = () => {
-        localStorage.clear('loginData');
-        window.location.reload();
+        fetch(`${BASE_URL}/auth/admin/logout`,{
+            method: "POST",
+            credentials:"include"
+        })
+        .then((res)=>res.json())
+        .then((result)=>{
+            if (result?.success == true) {
+                localStorage.clear('loginData');
+                alert(result.message)
+                navigate('/admin/login')
+            }
+        })
     };
 
     return (

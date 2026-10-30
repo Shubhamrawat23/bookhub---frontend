@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { BASE_URL } from "../../config.js";
 import { useStore } from "../../store/store.jsx";
 import TicketCard from "../../components/ticketCard.jsx";
@@ -13,7 +13,6 @@ export default function AuthorTickets() {
     const [books, setBooks] = useState([]);
     const [booksLoading, setBooksLoading] = useState(true);
     const [showNewTicket, setShowNewTicket] = useState(false);
-    const pollingTktList = useRef(null)
     const navigate = useNavigate()
 
     const fetchTickets = useCallback((showLoader = false)=>{
@@ -22,24 +21,24 @@ export default function AuthorTickets() {
 
         fetch(`${BASE_URL}/ticket/author/list`, {
             method: "GET",
+            credentials: "include",
             headers: { 
                 "Accept": "application/json",
-                "Authorization": `${authorLoginData.token_type} ${authorLoginData.access_token}`
+                // "Authorization": `${authorLoginData.token_type} ${authorLoginData.access_token}`
             }
         })
         .then((resp) => resp.json())
         .then((result) => {
-            if (result?.detail?.code == 401) {
-                setAuthorLoginData({})
-                clearInterval(pollingTktList.current);
-                alert(result.detail.error)
-                navigate("/author/login")
-                return;
-            }
             if (result.code === 200) {
                 setTickets(result.data);
+            } else if (result?.code == 401 || result?.code == 403) {
+                setAuthorLoginData({})
+                alert(result.error)
+                navigate("/author/login")
+                return;
             } else {
-                setError(result.message);
+                alert(result?.message)
+                setError(result?.message);
             }
         })
         .catch((err) => {
@@ -59,10 +58,7 @@ export default function AuthorTickets() {
     useEffect(() => {
         if (!authorLoginData?.author_id) return;
         fetchTickets(true);
-        pollingTktList.current = setInterval(()=>fetchTickets(false),5000)
-
-        return ()=>clearInterval(pollingTktList.current)
-    }, [authorLoginData]);
+    }, []);
 
 
     // handle books list for new tkt
@@ -72,15 +68,24 @@ export default function AuthorTickets() {
 
         fetch(`${BASE_URL}/author/book/list`, {
             method: "GET",
+            credentials: "include",
             headers: { 
                 "Accept": "application/json",
-                "Authorization": `${authorLoginData.token_type} ${authorLoginData.access_token}`
+                // "Authorization": `${authorLoginData.token_type} ${authorLoginData.access_token}`
             }
         })
         .then((resp) => resp.json())
         .then((result) => {
             if (result.code === 200) {
                 setBooks(result.data);
+            } else if (result?.code == 401 || result?.code == 403) {
+                setAuthorLoginData({})
+                alert(result.error)
+                navigate("/author/login")
+                return;
+            } else {
+                alert(result?.error)
+                setError(result.message);
             }
         })
         .catch((err) => console.error("Books fetch error:", err))

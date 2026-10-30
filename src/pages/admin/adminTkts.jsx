@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../config";
 import { useStore } from "../../store/store";
@@ -50,34 +50,37 @@ export default function AdminTickets() {
 
         fetch(`${BASE_URL}/ticket/admin/list?${params.toString()}`, {
             method: "GET",
-            headers: { "accept": "application/json", "Authorization": `${adminLoginData.token_type} ${adminLoginData.access_token}` }
+            credentials:"include",
+            headers: { 
+                "accept": "application/json", 
+                // "Authorization": `${adminLoginData.token_type} ${adminLoginData.access_token}` 
+            }
         })
             .then(r => r.json())
             .then(result => {
-
-                if (result?.detail?.code == 401) {
-                    setAdminLoginData({})
-                    clearInterval(pollingRef.current)
-                    alert(result.detail.error);
-                    navigate("/admin/login");
-                    return;
-                }
                 if (result.code === 200) {
                     setTickets(result.data);
                     setError(null);
+                }else if (result?.code == 401 || result?.code == 403) {
+                    setAdminLoginData({})
+                    clearInterval(pollingRef.current)
+                    alert(result.error);
+                    navigate("/admin/login");
+                    return;
                 } else {
+                    alert(result.message)
                     setError(result.message);
                 }
             })
             .catch(() => setError("Something went wrong."))
             .finally(() => setLoading(false));
 
-    }, [adminLoginData?.access_token, status, category, priority, startDate, endDate]);
+    }, [status, category, priority, startDate, endDate]);
 
     useEffect(() => {
         fetchTickets(true);
-        pollingRef.current = setInterval(() =>fetchTickets(false), 5000);
-        return () => clearInterval(pollingRef.current);
+        // pollingRef.current = setInterval(() =>fetchTickets(false), 5000);
+        // return () => clearInterval(pollingRef.current);
     }, [fetchTickets]);
 
     const urgentCount = useMemo(() =>

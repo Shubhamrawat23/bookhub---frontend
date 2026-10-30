@@ -1,11 +1,28 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { BASE_URL } from "../../config";
 
 export default function AuthorPortalSidebar({ sidebarOpen, setSidebarOpen }) {
+    const navigate = useNavigate()
 
     const navItems = [
         { label: "My Books", icon: "fa-solid fa-book", path: "/author/books" },
         { label: "My Tickets", icon: "fa-solid fa-ticket", path: "/author/tickets" }
     ];
+
+    const handleLogout = ()=>{
+        fetch(`${BASE_URL}/auth/author/logout`,{
+            method: "POST",
+            credentials:"include"
+        })
+        .then((res)=>res.json())
+        .then((result)=>{
+            if (result?.success == true) {
+                localStorage.clear('loginData');
+                alert(result.message)
+                navigate('/author/login')
+            }
+        })
+    }
 
     return (
         <aside className="h-full bg-white border-r border-slate-100 shadow-sm flex flex-col overflow-hidden">
@@ -49,7 +66,7 @@ export default function AuthorPortalSidebar({ sidebarOpen, setSidebarOpen }) {
             <div className="p-2 border-t border-slate-100">
                 <button
                     className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-50 hover:text-red-500 transition w-full"
-                    onClick={() => {localStorage.clear('loginData'); window.location.reload();}}
+                    onClick={handleLogout}
                 >
                     <i className="fa-solid fa-right-from-bracket fa-sm w-4 text-center flex-shrink-0"></i>
                     {sidebarOpen && <span className="whitespace-nowrap">Logout</span>}
