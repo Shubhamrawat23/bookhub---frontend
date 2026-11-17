@@ -79,7 +79,7 @@ export default function AuthorTicketChat() {
         console.log(ws);
         
         wsRef.current = ws;
-        setWsStatus("connecting");
+        // setWsStatus("connecting");
 
         ws.onopen = () => {
             console.log("ws open");

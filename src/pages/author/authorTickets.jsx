@@ -6,12 +6,12 @@ import NewTicketModal from "../../components/newTktModel.jsx";
 import { useNavigate } from "react-router-dom";
 
 export default function AuthorTickets() {
-    const { authorLoginData, setTktData, setAuthorLoginData } = useStore();
+    const { authorLoginData, setAuthorLoginData } = useStore();
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [books, setBooks] = useState([]);
-    const [booksLoading, setBooksLoading] = useState(true);
+    // const [booksLoading, setBooksLoading] = useState(true);
     const [showNewTicket, setShowNewTicket] = useState(false);
     const navigate = useNavigate()
 
@@ -64,7 +64,6 @@ export default function AuthorTickets() {
     // handle books list for new tkt
     const fetchBooks = useCallback(() => {
         if (!authorLoginData?.author_id) return;
-        setBooksLoading(true);
 
         fetch(`${BASE_URL}/author/book/list`, {
             method: "GET",
@@ -89,7 +88,6 @@ export default function AuthorTickets() {
             }
         })
         .catch((err) => console.error("Books fetch error:", err))
-        .finally(() => setBooksLoading(false));
 
     }, [authorLoginData?.author_id]);
 

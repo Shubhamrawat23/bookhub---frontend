@@ -12,7 +12,7 @@ export default function AdminLayout() {
 
     useEffect(() => {
         const controller = new AbortController();
-        setStatus("checking");
+        // setStatus("checking");
 
         fetch(`${BASE_URL}/auth/me`, {
             credentials: "include",

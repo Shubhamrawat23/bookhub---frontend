@@ -19,7 +19,7 @@ const PRIORITY_MAP = {
 
 export default function AdminTickets() {
     const navigate = useNavigate();
-    const { adminLoginData, setAdminLoginData } = useStore();
+    const { setAdminLoginData } = useStore();
 
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -45,8 +45,8 @@ export default function AdminTickets() {
         if (status) params.append("status_filter", status);
         if (category) params.append("category_filter", category);
         if (priority) params.append("priority_filter", priority);
-        if (startDate) params.append("start_date_tz", toStartTZ(startDate));
-        if (endDate) params.append("end_date_tz", toEndTZ(endDate));
+        // if (startDate) params.append("start_date_tz", toStartTZ(startDate));
+        // if (endDate) params.append("end_date_tz", toEndTZ(endDate));
 
         fetch(`${BASE_URL}/ticket/admin/list?${params.toString()}`, {
             method: "GET",
@@ -93,16 +93,6 @@ export default function AdminTickets() {
             day: "2-digit", month: "short", year: "numeric",
             hour: "2-digit", minute: "2-digit", hour12: true
         });
-    }
-
-    const toStartTZ = (dateStr) => {
-        if (!dateStr) return "";
-        return `${dateStr} 00:00:00.000000+05:30`;
-    }
-
-    const toEndTZ = (dateStr) => {
-        if (!dateStr) return "";
-        return `${dateStr} 23:59:59.999999+05:30`;
     }
 
     const resetFilters = () => {
@@ -188,7 +178,7 @@ export default function AdminTickets() {
                     <option value="4">Low</option>
                 </select>
 
-                <div className="relative col-span-2 sm:col-span-2">
+                {/* <div className="relative col-span-2 sm:col-span-2">
                     <div className="flex items-center border border-slate-200 bg-white rounded-lg px-3 py-2 gap-2 focus-within:ring-2 focus-within:ring-blue-500 transition">
                         <i className="fa-regular fa-calendar text-slate-400 fa-sm flex-shrink-0"></i>
                         <input
@@ -215,7 +205,7 @@ export default function AdminTickets() {
                             </button>
                         )}
                     </div>
-                </div>
+                </div> */}
             </div>
 
             {/* Table */}

@@ -127,7 +127,7 @@ export default function AdminTicketDetailsUpdate() {
 
         const ws = new WebSocket(ws_url);
         wsRef.current = ws;
-        setWsStatus("connecting");
+        // setWsStatus("connecting");
 
         ws.onopen = () => setWsStatus("open");
 

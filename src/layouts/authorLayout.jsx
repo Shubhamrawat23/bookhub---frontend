@@ -14,7 +14,7 @@ export default function AuthorLayout() {
 
     const checkMe = useCallback(() => {
         const controller = new AbortController();
-        setStatus("checking");
+        // setStatus("checking");
 
         fetch(`${BASE_URL}/auth/me`, {
             credentials: "include",
