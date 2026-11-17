@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BASE_URL } from "../config";
 import { Link, useNavigate } from "react-router-dom";
 import { useStore } from "../store/store";
 
 export default function LoginCard({ role }) {
-    const loginFetchAPI = null;
     const [errorMsg, setErrorMsg] = useState(null)
     const [showPass, setShowPass] = useState(false)
     const { setAuthorLoginData, setAdminLoginData, adminLoginData, authorLoginData } = useStore()

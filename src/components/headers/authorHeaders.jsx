@@ -1,4 +1,3 @@
-import React, { useEffect } from "react";
 import { useStore } from "../../store/store.jsx";
 import { useNavigate } from "react-router-dom";
 

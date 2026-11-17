@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { BASE_URL } from "../../config.js";
 import { useStore } from "../../store/store.jsx";
 import TicketCard from "../../components/ticketCard.jsx";

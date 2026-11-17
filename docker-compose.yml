@@ -1,0 +1,19 @@
+networks:
+  bookhub_net:
+    external: true
+
+
+services:
+  frontend:
+    container_name: bookhub_front_cont
+    restart: always
+    build: 
+      context: .
+      args:
+        - VITE_API_BASE_URL=/api
+    networks:
+      - bookhub_net
+    ports:
+      - 80:80
+
+

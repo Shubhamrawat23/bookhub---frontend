@@ -1,7 +1,6 @@
 // components/NewTicketModal.jsx
-import React, { useState } from "react";
+import { useState } from "react";
 import { BASE_URL } from "../config";
-import { useStore } from "../store/store.jsx";
 import { useNavigate } from "react-router-dom";
 
 const CATEGORY_OPTIONS = [
@@ -11,7 +10,6 @@ const CATEGORY_OPTIONS = [
 ];
 
 export default function NewTicketModal({ onClose, onSuccess, books = [] }) {
-    const { authorLoginData } = useStore();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [attachment, setAttachment] = useState(null);

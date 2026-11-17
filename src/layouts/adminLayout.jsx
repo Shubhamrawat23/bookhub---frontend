@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import AdminHeader from "../components/headers/adminHeaders";
 import { useStore } from "../store/store";
