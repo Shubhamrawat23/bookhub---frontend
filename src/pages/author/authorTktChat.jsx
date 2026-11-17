@@ -57,7 +57,7 @@ export default function AuthorTicketChat() {
             .catch(() => setError("Something went wrong."))
             .finally(() => { if (showLoader) setLoading(false) });
 
-    }, [ticket_code, authorLoginData?.author_id]);
+    }, [ticket_code, authorLoginData?.author_id, navigate, setAuthorLoginData]);
 
     useEffect(() => {
         fetchChatHistory(true);

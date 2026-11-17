@@ -3,8 +3,8 @@ import { useStore } from "../../store/store";
 import { NavLink, useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../config";
 
-export default function AdminPortalHeader() {
-    const { adminLoginData } = useStore();
+export default function AdminHeader() {
+    const { adminLoginData, setAdminLoginData } = useStore();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const navigate = useNavigate()
 
@@ -21,9 +21,10 @@ export default function AdminPortalHeader() {
         .then((res)=>res.json())
         .then((result)=>{
             if (result?.success == true) {
-                localStorage.clear('loginData');
                 alert(result.message)
                 navigate('/admin/login')
+                localStorage.removeItem('loginData');
+                setAdminLoginData({});
             }
         })
     };

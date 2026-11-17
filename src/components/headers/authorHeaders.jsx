@@ -1,9 +1,9 @@
 import { useStore } from "../../store/store.jsx";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 export default function AuthorPortalHeader() {
     const { authorLoginData } = useStore();
-    const navigate = useNavigate()
+    // const navigate = useNavigate()
  
     // Get initials from name
     const getInitials = (name) => {

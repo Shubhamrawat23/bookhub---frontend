@@ -33,8 +33,7 @@ export default function AdminTickets() {
 
     const pollingRef = useRef(null);
     
-    const fetchTickets = useCallback((showLoader = false) => {
-        if (showLoader) setLoading(true);
+    const fetchTickets = useCallback(() => {
 
         // const params = new URLSearchParams({
         //     author_id: "all",
@@ -75,11 +74,11 @@ export default function AdminTickets() {
             .catch(() => setError("Something went wrong."))
             .finally(() => setLoading(false));
 
-    }, [status, category, priority, startDate, endDate]);
+    }, [status, category, priority, navigate, setAdminLoginData]);
 
     useEffect(() => {
-        fetchTickets(true);
-        // pollingRef.current = setInterval(() =>fetchTickets(false), 5000);
+        fetchTickets();
+        // pollingRef.current = setInterval(() =>fetchTickets(), 5000);
         // return () => clearInterval(pollingRef.current);
     }, [fetchTickets]);
 

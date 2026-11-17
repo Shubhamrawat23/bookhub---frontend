@@ -25,8 +25,9 @@ export default function AdminLayout() {
                 setAdminLoginData({ ...result.data, admin_id: result.data.id });
                 setStatus("ok");
             } else{
-                alert(result?.message)
                 if (result.code == 401 || result?.code == 403) {
+                    setAdminLoginData({})
+                    alert(result?.message)
                     navigate("/admin/login");
                 }
             }
@@ -36,7 +37,7 @@ export default function AdminLayout() {
         });
 
         return () => controller.abort();
-    }, [navigate]);
+    }, [navigate, setAdminLoginData]);
 
     if (status === "checking") {
         return (

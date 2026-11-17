@@ -10,14 +10,14 @@ export default function LoginCard({ role }) {
     const navigate = useNavigate()
 
     useEffect(() => {
-        if (role === "Author" && authorLoginData?.access_token) {
+        if (role === "Author" && authorLoginData?.author_id) {
             navigate("/author/books");
         }
 
-        if (role === "Admin" && adminLoginData?.access_token) {
+        if (role === "Admin" && adminLoginData?.id) {
             navigate("/admin/query-tickets");
         }
-    }, [authorLoginData, adminLoginData, role]);
+    }, [authorLoginData, adminLoginData, role, navigate]);
 
     const handleLoginSubmit = (e) => {
         e.preventDefault();

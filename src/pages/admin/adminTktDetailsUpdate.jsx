@@ -42,9 +42,8 @@ export default function AdminTicketDetailsUpdate() {
 
 
     // Fetch ticket details (mount + after update) --------
-    const fetchTktDetails = useCallback((showLoader = false) => {
+    const fetchTktDetails = useCallback(() => {
         if (!ticket_code) return;
-        if (showLoader) setLoading(true);
 
         fetch(`${BASE_URL}/ticket/admin/tkt_detail?ticket_code=${ticket_code}`, {
             method: "GET",
@@ -73,11 +72,11 @@ export default function AdminTicketDetailsUpdate() {
             .catch(() => setError("Something went wrong."))
             .finally(() => setLoading(false)); 
 
-    }, [ticket_code, navigate]);
+    }, [ticket_code, navigate, setAdminLoginData]);
 
     // Only on mount
     useEffect(() => {
-        fetchTktDetails(true);
+        fetchTktDetails();
     }, [fetchTktDetails]);
 
     const fetchChat = useCallback(() => {
@@ -107,11 +106,11 @@ export default function AdminTicketDetailsUpdate() {
             })
             .catch(err => console.error(err));
 
-    }, [ticket_code]);
+    }, [ticket_code, adminLoginData?.admin_id, navigate, setAdminLoginData]);
 
     useEffect(() => {
         fetchChat();
-    }, []);
+    }, [fetchChat]);
 
     // Auto scroll to bottom on new message
     useEffect(() => {
@@ -172,7 +171,7 @@ export default function AdminTicketDetailsUpdate() {
         }).then(r => r.json());
 
         if (result.code === 200) {
-            fetchTktDetails(false);
+            fetchTktDetails();
         }
         return result;
     }

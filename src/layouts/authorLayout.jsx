@@ -29,8 +29,10 @@ export default function AuthorLayout() {
                 setStatus("ok");
             } 
             else{
-                alert(result?.message)
                 if (result.code == 401 || result?.code == 403) {
+                    localStorage.removeItem('loginData');
+                    setAuthorLoginData({});
+                    alert(result?.message)
                     navigate("/author/login");
                 }
             }
@@ -41,11 +43,11 @@ export default function AuthorLayout() {
         });
 
         return () => controller.abort();
-    }, [navigate])
+    }, [navigate, setAuthorLoginData])
 
     useEffect(() => {
         checkMe()
-    }, []);
+    }, [checkMe]);
 
     if (status === "checking") {
         return (

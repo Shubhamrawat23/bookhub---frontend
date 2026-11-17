@@ -13,16 +13,16 @@ export const useStore = create(
                 // token_type: null,
             },
             setAuthorLoginData: (data) => set({ authorLoginData: data }),
-            logoutAuthor: () => set({
-                authorLoginData: {
-                    author_id: null,
-                    name:      null,
-                    email:     null,
-                    phone:     null,
-                    // access_token: null,
-                    // token_type: null,
-                }
-            }),
+            // logoutAuthor: () => set({
+            //     authorLoginData: {
+            //         author_id: null,
+            //         name:      null,
+            //         email:     null,
+            //         phone:     null,
+            //         // access_token: null,
+            //         // token_type: null,
+            //     }
+            // }),
 
             tkt_data: {},
             setTktData: (data) => set({ tkt_data: data }),
@@ -38,16 +38,16 @@ export const useStore = create(
                 // token_type: null,
             },
             setAdminLoginData: (data) => set({ adminLoginData: data }),
-            logoutAdmin: () => set({
-                adminLoginData: {
-                    admin_id:   null,
-                    admin_code: null,
-                    name:       null,
-                    email:      null,
-                    // access_token: null,
-                    // token_type: null,
-                }
-            }),
+            // logoutAdmin: () => set({
+            //     adminLoginData: {
+            //         admin_id:   null,
+            //         admin_code: null,
+            //         name:       null,
+            //         email:      null,
+            //         // access_token: null,
+            //         // token_type: null,
+            //     }
+            // }),
 
             adminTktData: {},
             setAdminTktData: (data) => set({ adminTktData: data }),

@@ -41,7 +41,7 @@ export default function AuthorBook() {
         })
         .finally(() => setLoading(false));
 
-    }, []);
+    }, [authorLoginData?.author_id, navigate, setAuthorLoginData]);
 
     // Loading
     if (loading) return (

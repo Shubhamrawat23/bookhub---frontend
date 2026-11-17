@@ -15,9 +15,8 @@ export default function AuthorTickets() {
     const [showNewTicket, setShowNewTicket] = useState(false);
     const navigate = useNavigate()
 
-    const fetchTickets = useCallback((showLoader = false)=>{
+    const fetchTickets = useCallback(()=>{
         if (!authorLoginData?.author_id) return;
-        if (showLoader) setLoading(true);
 
         fetch(`${BASE_URL}/ticket/author/list`, {
             method: "GET",
@@ -46,7 +45,7 @@ export default function AuthorTickets() {
             setError("Something went wrong. Please try again.");
         })
         .finally(() => setLoading(false));
-    },[])
+    },[navigate, setAuthorLoginData, authorLoginData?.author_id])
 
 
     // empty tkt data in store
@@ -57,8 +56,8 @@ export default function AuthorTickets() {
 
     useEffect(() => {
         if (!authorLoginData?.author_id) return;
-        fetchTickets(true);
-    }, []);
+        fetchTickets();
+    }, [authorLoginData?.author_id, fetchTickets]);
 
 
     // handle books list for new tkt
@@ -89,7 +88,7 @@ export default function AuthorTickets() {
         })
         .catch((err) => console.error("Books fetch error:", err))
 
-    }, [authorLoginData?.author_id]);
+    }, [authorLoginData?.author_id, navigate, setAuthorLoginData]);
 
     useEffect(() => {
         fetchBooks();
@@ -135,7 +134,7 @@ export default function AuthorTickets() {
                 {showNewTicket && (
                     <NewTicketModal
                         onClose={() => setShowNewTicket(false)}
-                        onSuccess={() => fetchTickets(false)}
+                        onSuccess={() => fetchTickets()}
                         books={books}
                     />
                 )}

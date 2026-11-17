@@ -1,8 +1,10 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../config";
+import { useStore } from "../../store/store";
 
 export default function AuthorPortalSidebar({ sidebarOpen, setSidebarOpen }) {
     const navigate = useNavigate()
+    const {setAuthorLoginData} = useStore()
 
     const navItems = [
         { label: "My Books", icon: "fa-solid fa-book", path: "/author/books" },
@@ -17,9 +19,10 @@ export default function AuthorPortalSidebar({ sidebarOpen, setSidebarOpen }) {
         .then((res)=>res.json())
         .then((result)=>{
             if (result?.success == true) {
-                localStorage.clear('loginData');
                 alert(result.message)
                 navigate('/author/login')
+                localStorage.removeItem('loginData');
+                setAuthorLoginData({});
             }
         })
     }
