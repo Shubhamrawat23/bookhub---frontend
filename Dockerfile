@@ -2,6 +2,10 @@ FROM node:22-slim as builder
 
 WORKDIR /my-build
 
+ARG VITE_API_BASE_URL
+
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
 COPY package.json ./
 COPY package-lock.json ./
 
