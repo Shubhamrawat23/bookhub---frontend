@@ -73,7 +73,7 @@ export default function AuthorTicketChat() {
     useEffect(() => {
         if (!ticket_code) return;
 
-        const ws_url = '';
+        let ws_url;
         const protocol = window.location.protocol == 'https:' ? 'wss' : 'ws'
         ws_url = `${BASE_URL.replace(/(https?):\/\//, 'wss://')}/ticket/ws/author/chat?ticket_code=${ticket_code}`
         if (protocol == 'ws'){
