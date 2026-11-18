@@ -122,7 +122,13 @@ export default function AdminTicketDetailsUpdate() {
     useEffect(() => {
         if (!ticket_code) return;
 
-        const ws_url = `${BASE_URL.replace(/(https?):\/\//, 'wss://')}/ticket/ws/admin/chat?ticket_code=${ticket_code}`;
+        const ws_url = '';
+        const protocol = window.location.protocol == 'https:' ? 'wss' : 'ws'
+        ws_url = `${BASE_URL.replace(/(https?):\/\//, 'wss://')}/ticket/ws/admin/chat?ticket_code=${ticket_code}`;
+        if (protocol == 'ws'){
+            const host = window.location.host
+            ws_url = `${protocol}://${host}/ticket/ws/admin/chat?ticket_code=${ticket_code}`
+        }
 
         const ws = new WebSocket(ws_url);
         wsRef.current = ws;
