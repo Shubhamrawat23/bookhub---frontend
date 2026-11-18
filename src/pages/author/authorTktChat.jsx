@@ -78,7 +78,7 @@ export default function AuthorTicketChat() {
         ws_url = `${BASE_URL.replace(/(https?):\/\//, 'wss://')}/ticket/ws/author/chat?ticket_code=${ticket_code}`
         if (protocol == 'ws'){
             const host = window.location.host
-            ws_url = `${protocol}://${host}/ticket/ws/author/chat?ticket_code=${ticket_code}`
+            ws_url = `${protocol}://${host}/api/ticket/ws/author/chat?ticket_code=${ticket_code}`
         }
 
         const ws = new WebSocket(ws_url);

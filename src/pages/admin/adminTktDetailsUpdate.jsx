@@ -127,7 +127,7 @@ export default function AdminTicketDetailsUpdate() {
         ws_url = `${BASE_URL.replace(/(https?):\/\//, 'wss://')}/ticket/ws/admin/chat?ticket_code=${ticket_code}`;
         if (protocol == 'ws'){
             const host = window.location.host
-            ws_url = `${protocol}://${host}/ticket/ws/admin/chat?ticket_code=${ticket_code}`
+            ws_url = `${protocol}://${host}/api/ticket/ws/admin/chat?ticket_code=${ticket_code}`
         }
 
         const ws = new WebSocket(ws_url);
