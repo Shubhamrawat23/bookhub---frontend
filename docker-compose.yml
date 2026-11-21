@@ -15,6 +15,7 @@ services:
       - bookhub_net
     ports:
       - 80:80
+      - 443:443
     volumes:
       - ./bookhub_certbot/www:/var/www/certbot
       - /etc/letsencrypt:/etc/letsencrypt
